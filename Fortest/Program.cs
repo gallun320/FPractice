@@ -45,8 +45,12 @@ namespace Fortest
             /*var arr = UpArray(new int[] { 9, 9, 9 });
             foreach (var el in arr)
                 Console.WriteLine(el);*/
-            Console.WriteLine(Solution(72.2469839138198));
-            Console.ReadKey();
+            //Console.WriteLine(Solution(72.2469839138198));
+            /*var arr = ArrayDiff(new int[] { 1, 2, 2 }, new int[] { 1 });
+            foreach (var el in arr)
+                Console.WriteLine(el);*/
+            Console.WriteLine(ConvertToMixedNumeral("-504/26"));
+             Console.ReadKey();
         }
 
         static bool IsSquare(int n)
@@ -682,10 +686,52 @@ namespace Fortest
             return Math.Round(n * 2, MidpointRounding.AwayFromZero) / 2;
         }
 
+        public static int[] MYArrayDiff(int[] a, int[] b)
+        {
+            if (a.Length == 0 || b.Length == 0) return a;
+            return a.Where(x => Array.IndexOf(b, x) == -1).Select(x => x).ToArray();
+        }
+
         public static int[] ArrayDiff(int[] a, int[] b)
         {
-            
-            return a.Concat(b).Distinct().ToArray();
+            if (a.Length == 0 || b.Length == 0) return a;
+            return a.Where(x => !b.Contains(x)).ToArray();
+        }
+
+        public static string MYConvertToMixedNumeral(string frac)
+        {
+            var statement = frac.Split('/');
+            var fPart = double.Parse(statement[0]);
+            var sPart = double.Parse(statement[1]);
+
+            var full = fPart / sPart;
+
+            var result = Math.Abs(Math.Round(( full - ((int)full)) * sPart));
+
+            if (fPart < 0 && (int)full == 0) result *= -1;
+
+            var firstPart = ((int)full != 0) ? ((int)full).ToString() + " " : "";
+            var secondPart = (result != 0) ? $"{result}/{sPart}" : "";
+
+            return (firstPart + secondPart).TrimEnd();
+        }
+
+        public static string ConvertToMixedNumeral(string frac)
+        {
+            var statement = frac.Split('/');
+            var fPart = int.Parse(statement[0]);
+            var sPart = int.Parse(statement[1]);
+
+            var full = fPart / sPart;
+            var result = fPart % sPart;
+
+            return result == 0 ? full.ToString() : result != 0 && full != 0 ? $"{full} {Math.Abs(result)}/{sPart}" : frac;
+        }
+
+        public static string toFraction(double number)
+        {
+
+            return "0/0";
         }
     }
 }
