@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -49,8 +50,17 @@ namespace Fortest
             /*var arr = ArrayDiff(new int[] { 1, 2, 2 }, new int[] { 1 });
             foreach (var el in arr)
                 Console.WriteLine(el);*/
-            Console.WriteLine(ConvertToMixedNumeral("-504/26"));
-             Console.ReadKey();
+            //Console.WriteLine(ConvertToMixedNumeral("-504/26"));
+            //Console.WriteLine(toFraction(1.92654424040067));
+            //fracion(1.92654424040067);
+            //Ones(3);
+            /*Operation op = new Multiply();
+            op.Execute(3.0, 2.0);
+            Console.WriteLine(op.Result);*/
+            var fn = Always(3);
+            Console.WriteLine(fn());
+            Console.WriteLine(fn());
+            Console.ReadKey();
         }
 
         static bool IsSquare(int n)
@@ -730,8 +740,62 @@ namespace Fortest
 
         public static string toFraction(double number)
         {
+            if (number == Math.Floor(number)) return number.ToString();
+            var start = (int)number;
+            var x = number - start;
+            var vectorNum = new List<int>();
+            do
+            {
+                Console.WriteLine((int)(1 / x));
+                var middle = (int)(1 / x);
+                x = (1 / x) - (double)middle;
+                vectorNum.Add(middle);
+                if ((x * 10) < 1) x = 0;
+            } while (x != 0);
 
-            return "0/0";
+            if(vectorNum.Count == 1)
+            {
+                return $"{Math.Floor((double)vectorNum.Last() / 10) + Math.Ceiling((double)vectorNum.Last() / 10)}/{Math.Abs(vectorNum.Last())}";
+            }
+
+            var tmp = 0;
+            for(var i = vectorNum.Count - 1; i != 0; --i)
+            {
+                tmp += 1 + ((i - 1 > -1) ? vectorNum[i - 1] : 0) * vectorNum[i]; 
+            }
+
+            var upEl = start * tmp + vectorNum.Last();
+            return $"{upEl}/{tmp}";
         }
+
+        public static void fracion(double x)
+        {
+            var a = "" + x;
+            var spilts = a.Split(','); // split using decimal
+            var b = spilts[1].Length; // find the decimal length
+            var denominator = (long)Math.Pow(10, b); // calculate the denominator
+            var numerator = (long)(x * denominator); // calculate the nerumrator Ex
+                                                    // 1.2*10 = 12
+            var gcd = getGCD(numerator, denominator); // Find the greatest common
+                                                      // divisor bw them
+            string fraction = "" + numerator / gcd + "/" + denominator / gcd;
+            Console.WriteLine(fraction);
+        }
+
+        public static long getGCD(long n1, long n2)
+        {
+            if (n2 == 0)
+            {
+                return n1;
+            }
+            return getGCD(n2, n1 % n2);
+        }
+
+        public static int Ones(long n)
+        {
+            return Convert.ToString(n,2).Select(x => x - 48).Sum();
+        }
+
+        public static Func<int> Always(int n) => () => n;
     }
 }
