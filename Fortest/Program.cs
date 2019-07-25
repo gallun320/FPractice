@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fortest
@@ -51,16 +52,35 @@ namespace Fortest
             foreach (var el in arr)
                 Console.WriteLine(el);*/
             //Console.WriteLine(ConvertToMixedNumeral("-504/26"));
-            //Console.WriteLine(toFraction(1.92654424040067));
-            //fracion(1.92654424040067);
+            //Console.WriteLine(toFraction(-0.618103448275862));
+            //fracion(1.75);
             //Ones(3);
             /*Operation op = new Multiply();
             op.Execute(3.0, 2.0);
             Console.WriteLine(op.Result);*/
-            var fn = Always(3);
-            Console.WriteLine(fn());
-            Console.WriteLine(fn());
+            //var fn = Always(3);
+            //Console.WriteLine(fn());
+            //Console.WriteLine(fn());
+            //Console.WriteLine(frac(-0.618103448275862));
+            //Console.WriteLine(toFractionEnd(0.5));
+            //var nodes = Nodes.Length(new Nodes(99));
+            //Console.WriteLine(nodes);
+            //Console.WriteLine(hydrate("5 asdgfdg 1 gfhgfh"));
+            //Console.WriteLine(Persistence(999));
+            /*var rs = TowerBuilder(3);
+            foreach(var el in rs)
+            {
+                Console.WriteLine(el);
+            }*/
+
+            /*var rs = TowerBuilderThreads(3);
+            foreach (var el in rs)
+            {
+                Console.WriteLine(el);
+            }*/
+            Console.WriteLine(repeatStr(3, "I"));
             Console.ReadKey();
+            
         }
 
         static bool IsSquare(int n)
@@ -778,7 +798,7 @@ namespace Fortest
                                                     // 1.2*10 = 12
             var gcd = getGCD(numerator, denominator); // Find the greatest common
                                                       // divisor bw them
-            string fraction = "" + numerator / gcd + "/" + denominator / gcd;
+            string fraction = numerator / gcd + "/" + denominator / gcd;
             Console.WriteLine(fraction);
         }
 
@@ -791,11 +811,174 @@ namespace Fortest
             return getGCD(n2, n1 % n2);
         }
 
+        public static string frac(double n)
+        {
+            var c = n.ToString().Split(',');
+            var f = c[0];
+            var s = c[1];
+            var numerator = (int)long.Parse(s);
+            var denominator = (int)Math.Pow(10, s.Length);
+
+            var rs = Gcd(numerator, denominator);
+
+            var end = (numerator / rs) / 2 + "/" + (denominator / rs) / 2;
+
+            return end;
+        }
+
+
+        public static int Gcd(int num1, int num2)
+        {
+            if (num2 == 0) return num1;
+            return Gcd(num2, num1 % num2);
+        }
+
+        public static string toFractionEnd(double n)
+        {
+            if (n % 1 == 0) return "" + n;
+            for(var i = 1; i < 2000; ++i)
+            {
+                var tmp = Math.Abs(Math.Round(n * i) - n * i);
+                if (tmp < 0.000000001) return $"{n * i}/{i}";
+            }
+            return "" + n;
+        }
+
         public static int Ones(long n)
         {
             return Convert.ToString(n,2).Select(x => x - 48).Sum();
         }
 
         public static Func<int> Always(int n) => () => n;
+
+
+        public static string GetLuckyTicket(int index)
+        {
+            //Your code...
+            return "Wrong index!";
+        }
+
+        public static string hydrate(string drinkString)
+        {
+            // Insert party here
+            var rs = Regex.Replace(drinkString, "[a-z, ]", "", RegexOptions.IgnoreCase).Select(x => x - 48).Sum();
+            return rs > 1 ? rs + " glasses of water" : rs + " glass of water";
+        }
+
+        public static int MYPersistence(long n)
+        {
+            var rs = new List<long>();
+            while(n > 9)
+            {
+                var tmp = 1;
+                foreach(var i in n.ToString().Select(x => x - 48))
+                {
+                    tmp *= i;
+                }
+                n = tmp;
+                rs.Add(n);
+            }
+
+            return rs.Count();
+        }
+
+        public static int Persistence(long n)
+        {
+            var count = 0;
+            while (n > 9)
+            {
+                ++count;
+                n = n.ToString().Select(x => x - 48).Aggregate((x, y) => x * y);
+            }
+
+            return count;
+        }
+
+        public static string[] MYTowerBuilder(int nFloors)
+        {
+            var strArr = new string[nFloors];
+            var maxCount = nFloors + (nFloors - 1);
+            var idx = 0;
+            var str = new StringBuilder();
+            for(var i = 1; i < maxCount + 1; i += 2)
+            {
+                str.Append(' ', (maxCount - i) / 2);
+                str.Append('*', i);
+                str.Append(' ', (maxCount - i) / 2);
+                strArr[idx] = str.ToString();
+                str.Clear();
+                ++idx;
+
+            }
+            return strArr;
+        }
+
+        public static string[] TowerBuilder(int nFloors)
+        {
+            return Enumerable.Range(1, nFloors).Select(x => new string(' ', nFloors - x) + new string('*', x * 2 - 1) + new string(' ', nFloors - x)).ToArray();
+        }
+
+        static StringBuilder _strTower = new StringBuilder();
+        static object _lockObj = new object();
+
+        public static string[] TowerBuilderThreads(int nFloors)
+        {
+            var strArr = new string[nFloors];
+            var maxCount = nFloors + (nFloors - 1);
+            var idx = 0;
+            var str = new StringBuilder();
+            for (var i = 1; i < nFloors; ++i)
+            {
+                var tr1 = new Thread(() => AppenedSpaces(nFloors, i));
+                var tr2 = new Thread(() => AppenedStars(i));
+                var tr3 = new Thread(() => AppenedSpaces(nFloors, i));
+                var tr4 = new Thread(() => ClearBuilder());
+
+                tr1.Start();
+                tr2.Start();
+                tr3.Start();
+                strArr[idx] = _strTower.ToString();
+                tr4.Start();
+
+               
+                ++idx;
+
+            }
+            return strArr;
+        }
+
+        public static void AppenedSpaces(int nFloors, int counter)
+        {
+            lock(_lockObj)
+            {
+                _strTower.Append(' ', nFloors - counter);
+            }
+        }
+
+        public static void AppenedStars(int counter)
+        {
+            lock(_lockObj)
+            {
+                _strTower.Append('*', counter * 2 - 1);
+            }      
+        }
+
+        public static void ClearBuilder()
+        {
+            lock(_lockObj)
+            {
+                _strTower.Clear();
+            }
+        }
+
+        public static string repeatStr(int n, string s)
+        {
+            return string.Concat(Enumerable.Range(1, n).Select(x => s).ToArray());
+        }
+
+        public static string MixedFraction(string s)
+        {
+            return s;
+        }
     }
 }

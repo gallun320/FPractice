@@ -88,4 +88,41 @@ namespace Fortest
             }
         }
     }
+
+
+    public partial class Nodes
+    {
+        public int Data;
+        public Nodes Next;
+
+        public Nodes(int data)
+        {
+            this.Data = data;
+            this.Next = null;
+        }
+
+        public static int Length(Nodes head)
+        {
+            var count = 0;
+            var node = head;
+            while(node != null)
+            {
+                ++count;
+                node = node.Next;
+            }
+            return count;
+        }
+
+        public static int Count(Nodes head, Predicate<int> func)
+        {
+            var count = 0;
+            var node = head;
+            while (node != null)
+            {
+                if(func(node.Data)) ++count;
+                node = node.Next;
+            }
+            return count;
+        }
+    }
 }
