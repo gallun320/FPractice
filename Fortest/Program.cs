@@ -1137,7 +1137,6 @@ namespace Fortest
 
         public static long digPow(int n, int p)
         {
-            //Some not so important changes
             var sum = Convert.ToInt64(n.ToString().Select(x => Math.Pow((x - 48), p++)).Sum());
             return sum % n == 0 ? sum / n : -1;
         }
