@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Fortest
@@ -123,6 +124,37 @@ namespace Fortest
                 node = node.Next;
             }
             return count;
+        }
+    }
+
+    public class ThreadTest
+    {
+        static bool done;
+        static object locker = new object();
+
+        public static void Go()
+        {
+            lock(locker)
+            {
+                if (!done)
+                {
+                    Console.WriteLine("Done");
+                    done = true;
+                }
+            }
+        }
+
+        public static void DelegateTest()
+        {
+            var bf = "before";
+            var t1 = new Thread(delegate () { WriteText(bf); });
+            bf = "After";
+            t1.Start();
+        }
+
+        public static void WriteText(string str)
+        {
+            Console.WriteLine(str);
         }
     }
 }

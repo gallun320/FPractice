@@ -74,11 +74,25 @@ namespace Fortest
             }*/
 
             /*var rs = TowerBuilderThreads(3);
-            foreach (var el in rs)
+             foreach (var el in rs)
+             {
+                 Console.WriteLine(el);
+             }*/
+
+            /*ThreadTest tt = new ThreadTest();
+            new Thread(ThreadTest.Go).Start();
+            ThreadTest.Go();*/
+            //Console.WriteLine(repeatStr(3, "I"));
+            //ThreadTest.DelegateTest();
+            //Console.WriteLine(MixedFraction("2/-7"));
+            /*var c = cartesianNeighbor(2, 2);
+            foreach(var el in c)
             {
                 Console.WriteLine(el);
             }*/
-            Console.WriteLine(repeatStr(3, "I"));
+            //IsLucky(100);
+            //Console.WriteLine(GetLuckyTicket(32683));
+            Console.WriteLine(digPow(46288, 5));
             Console.ReadKey();
             
         }
@@ -852,10 +866,46 @@ namespace Fortest
         public static Func<int> Always(int n) => () => n;
 
 
-        public static string GetLuckyTicket(int index)
+        public static string MYGetLuckyTicket(int index) // TODO
         {
-            //Your code...
-            return "Wrong index!";
+            
+            var endList = new List<string>();
+            foreach(var str in CreateLuckyArr())
+            {
+                var f = str.Substring(0, 3);
+                var s = str.Substring(3, 3);
+
+                var fr = (f[0] - 48) + (f[1] - 48) + (f[2] - 48);
+                var sr = (s[0] - 48) + (s[1] - 48) + (s[2] - 48);
+
+                if(fr == sr)
+                {
+                    endList.Add(str);
+                }
+            }
+
+            if (index < 0 || index > endList.Count)
+                return "Wrong index!";
+            else
+                return endList[index];
+        }
+
+        public static IEnumerable<string> CreateLuckyArr()
+        {
+            return Enumerable.Range(0, 999999).Select(x => x.ToString().PadLeft(6, '0'));
+        }
+
+        public static string GetLuckyTicket(int index) // TODO
+        {
+            int temp = 0;
+            for(var i = 0; i < 1000000; ++i)
+            {
+                var ticket = i.ToString().PadLeft(6, '0');
+                var fr = (ticket[0] - 48) + (ticket[1] - 48) + (ticket[2] - 48);
+                var sr = (ticket[3] - 48) + (ticket[4] - 48) + (ticket[5] - 48);
+                if ((fr == sr) && temp++ == index) return ticket;
+            }
+            return "Wrong index";
         }
 
         public static string hydrate(string drinkString)
@@ -927,20 +977,23 @@ namespace Fortest
             var maxCount = nFloors + (nFloors - 1);
             var idx = 0;
             var str = new StringBuilder();
-            for (var i = 1; i < nFloors; ++i)
+            for (var i = 1; i < nFloors + 1; ++i)
             {
                 var tr1 = new Thread(() => AppenedSpaces(nFloors, i));
-                var tr2 = new Thread(() => AppenedStars(i));
+               var tr2 = new Thread(new ParameterizedThreadStart(AppendStars));
                 var tr3 = new Thread(() => AppenedSpaces(nFloors, i));
                 var tr4 = new Thread(() => ClearBuilder());
 
                 tr1.Start();
-                tr2.Start();
+                tr1.Join();
+                tr2.Start(i);
+                tr2.Join();
                 tr3.Start();
+                tr3.Join();
                 strArr[idx] = _strTower.ToString();
                 tr4.Start();
+                tr4.Join();
 
-               
                 ++idx;
 
             }
@@ -955,12 +1008,20 @@ namespace Fortest
             }
         }
 
-        public static void AppenedStars(int counter)
+        public static void AppendStars(int counter)
         {
             lock(_lockObj)
             {
                 _strTower.Append('*', counter * 2 - 1);
             }      
+        }
+
+        public static void AppendStars(object counter)
+        {
+            lock (_lockObj)
+            {
+                _strTower.Append('*', (int)counter * 2 - 1);
+            }
         }
 
         public static void ClearBuilder()
@@ -976,9 +1037,114 @@ namespace Fortest
             return string.Concat(Enumerable.Range(1, n).Select(x => s).ToArray());
         }
 
+        public static string MYMixedFraction(string s)
+        {
+            var numbs = s.Split('/');
+            var f = Convert.ToInt32(numbs[0]);
+            var n = Convert.ToInt32(numbs[1]);
+
+
+            var full = f / n;
+            if (f == 0) return f.ToString();
+            var second = f % n;
+
+            for(var i = 2; i < 10000000; ++i)
+            {
+                if(second % i == 0 && n % i == 0)
+                {
+                    second /= i;
+                    n /= i;
+                    NearestSlice(ref second, ref n, i);
+                }
+            }
+
+            if (n < 0) second *= -1;
+
+            return second != 0 && full != 0 ? $"{full} {Math.Abs(second)}/{Math.Abs(n)}" : full != 0 && second == 0 ? full.ToString() : $"{second}/{Math.Abs(n)}";
+        }
+
+        public static void NearestSlice(ref int num1, ref int num2, int counter)
+        {
+            if (num1 % counter == 0 && num2 % counter == 0)
+            {
+                num1 /= counter;
+                num2 /= counter;
+                NearestSlice(ref num1, ref num2, counter);
+            }
+        }
+
         public static string MixedFraction(string s)
         {
-            return s;
+            var numer = Convert.ToInt64(s.Split('/')[0]);
+            var denom = Convert.ToInt64(s.Split('/')[1]);
+
+            if(denom < 0)
+            {
+                numer *= -1;
+                denom *= -1;
+            }
+
+            if (denom == 0)
+                throw new DivideByZeroException();
+
+            Func<long, long, long> gcd = null;
+            gcd = (a, b) => (b == 0) ? a : gcd(b, a % b);
+
+            if (numer % denom != 0)
+                return string.Format("{0} {1}/{2}", numer / denom == 0 ? string.Empty : (numer / denom).ToString(),
+                                                    numer / denom == 0 ? (numer % denom) / Math.Abs(gcd.Invoke(numer, denom)) : Math.Abs((numer % denom) / gcd.Invoke(numer, denom)),
+                                                    numer / denom == 0 ? denom / Math.Abs(gcd.Invoke(numer, denom)) : Math.Abs(denom / gcd.Invoke(numer, denom))).Trim();
+            else
+                return (numer / denom).ToString();
+        }
+
+
+        public static string CovertirKilometrosAMillas(string km)
+        {
+            if (km == "0") return "0.00";
+            return (Math.Round(Convert.ToDouble(km) * 0.62137, 2)).ToString();
+        }
+
+        public static IEnumerable<int[]> MYcartesianNeighbor(int x, int y)
+        {
+            for(var i = -1; i < 2; ++i)
+            {
+                for (var j = -1; j < 2; ++j)
+                {
+                    if (x == x - i && y == y - j) continue;
+                    yield return new int[] { x - i, y - j };
+                    
+                }
+            }
+        }
+
+        public static IEnumerable<int[]> cartesianNeighbor(int x, int y)
+        {
+            return Enumerable.Range(x - 1, 3).SelectMany(xn => Enumerable.Range(y - 1, 3).Where(yn => xn != x || yn != y).Select(yn => new int[] { xn, yn }));
+        }
+
+        public static bool IsLucky(int n)
+        {
+            var d = 13 % 2;
+            return false;
+        }
+
+        public static long MYdigPow(int n, int p)
+        {
+            var str = n.ToString();
+            long tmp = 0;
+            foreach(var ch in str)
+            {
+                tmp += (long)Math.Pow((ch - 48),  p++);
+            }
+            var r = tmp / n;
+            return r == 0 || tmp != r * n ? -1 : r;
+        }
+
+        public static long digPow(int n, int p)
+        {
+            var sum = Convert.ToInt64(n.ToString().Select(x => Math.Pow((x - 48), p++)).Sum());
+            return sum % n == 0 ? sum / n : -1;
         }
     }
 }
