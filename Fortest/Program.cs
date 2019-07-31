@@ -1107,6 +1107,7 @@ namespace Fortest
 
         public static IEnumerable<int[]> MYcartesianNeighbor(int x, int y)
         {
+            // This is mine too
             for(var i = -1; i < 2; ++i)
             {
                 for (var j = -1; j < 2; ++j)
