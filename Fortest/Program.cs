@@ -1123,12 +1123,6 @@ namespace Fortest
             return Enumerable.Range(x - 1, 3).SelectMany(xn => Enumerable.Range(y - 1, 3).Where(yn => xn != x || yn != y).Select(yn => new int[] { xn, yn }));
         }
 
-        public static bool IsLucky(int n)
-        {
-            var d = 13 % 2;
-            return false;
-        }
-
         public static long MYdigPow(int n, int p)
         {
             var str = n.ToString();
