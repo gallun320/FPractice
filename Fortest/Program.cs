@@ -1120,11 +1120,13 @@ namespace Fortest
 
         public static IEnumerable<int[]> cartesianNeighbor(int x, int y)
         {
+            // This is not
             return Enumerable.Range(x - 1, 3).SelectMany(xn => Enumerable.Range(y - 1, 3).Where(yn => xn != x || yn != y).Select(yn => new int[] { xn, yn }));
         }
 
         public static long MYdigPow(int n, int p)
         {
+            // This is mine
             var str = n.ToString();
             long tmp = 0;
             foreach(var ch in str)
