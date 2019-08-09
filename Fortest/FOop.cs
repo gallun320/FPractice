@@ -157,4 +157,35 @@ namespace Fortest
             Console.WriteLine(str);
         }
     }
+
+    public class Plugboard
+    {
+        private readonly char[] _alphabet;
+        public Plugboard(String wires = "")
+        {
+            if (wires.Length > 20) throw new Exception();
+            if (wires.Length % 2 != 0) throw new Exception();
+            if (wires.Distinct().ToArray().Length < wires.Length) throw new Exception();
+            _alphabet = wires.ToCharArray();
+        }
+        public char process(char c)
+        {
+            if (Array.IndexOf(_alphabet, c) == -1) return c;
+            var idx = Array.IndexOf(_alphabet, c);
+            return idx % 2 == 0 ? _alphabet[idx + 1] : _alphabet[idx - 1];
+        }
+    }
+
+    public static class NumberExtension
+    {
+        public static object FeetToCentimeters(this object n)
+        {
+            return (object)(Convert.ToDouble(n) * 30.48);
+        }
+
+        public static object CentimetersToFeet(this object n)
+        {
+            return n;
+        }
+    }
 }

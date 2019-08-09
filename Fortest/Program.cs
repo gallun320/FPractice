@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -28,7 +29,7 @@ namespace Fortest
             //Console.WriteLine(StackCounting("([](){([])})"));
             //Console.WriteLine(print(5));
             //Console.WriteLine(FriendOrFoe(new string[] { "Ryan", "Kieran", "Mark", "Jimmy" }).ToArray().Length);
-            //Race(80, 91, 37);
+            //Race(639, 821, 73);
             //Console.WriteLine(CalculateYears(1000, 0.01625, 0.18, 1200));
             //Longest("inmanylanguages", "theresapairoffunctions");
             //Console.WriteLine(Encrypt("This is a test!", 2));
@@ -92,7 +93,13 @@ namespace Fortest
             }*/
             //IsLucky(100);
             //Console.WriteLine(GetLuckyTicket(32683));
-            Console.WriteLine(digPow(46288, 5));
+            //Console.WriteLine(digPow(46288, 5));
+            //Console.WriteLine(ToWeirdCase("This"));
+            //var prc = new Plugboard("AB");
+            //Console.WriteLine(prc.process('C'));
+            //Console.WriteLine(stat(""));
+            //Console.WriteLine(MaxSequence(new int[] { -2, 1, -3, 4, -1, 2, 1, -5, 4 }));
+            Console.WriteLine(1.FeetToCentimeters());
             Console.ReadKey();
             
         }
@@ -271,21 +278,40 @@ namespace Fortest
             }
         }
 
+        public static int[] MYRace(int v1, int v2, int g)
+        {
+            if (v1 >= v2) return null;
+
+            var vtotal = Convert.ToDouble(v2) - Convert.ToDouble(v1);
+
+            var t = (double)g / vtotal;
+
+            var hours = (int)t;
+            var minute = ((t - (int)t) * 60); 
+            var second = (int)((minute - (int)minute) * 60 + 0.000000001);
+
+           if (second > 59)
+           {
+                second = 0;
+                ++minute;
+           }
+
+           if ((int)minute > 59)
+           {
+                minute = 0;
+                ++hours;
+           }
+
+            return new int[3] { hours, (int)minute, (int)second };
+        }
+
         public static int[] Race(int v1, int v2, int g)
         {
             if (v1 >= v2) return null;
 
-            var vtotal = v2 - v1;
+            var t = TimeSpan.FromSeconds((g * 3600) / (v2 - v1));
 
-            var t = (float)g / vtotal;
-
-            var hours = (int)Math.Round(t);
-            var minute = (int)(t / 60);
-            var second = (int)(t / 100);
-
-            Console.WriteLine($"{hours} {minute} {second}");
-
-            return new int[3] { hours, minute, second };
+            return new int[3] { t.Hours, t.Minutes, t.Seconds };
         }
 
         public static int MYCalculateYears(double principal, double interest, double tax, double desiredPrincipal)
@@ -1139,6 +1165,91 @@ namespace Fortest
         {
             var sum = Convert.ToInt64(n.ToString().Select(x => Math.Pow((x - 48), p++)).Sum());
             return sum % n == 0 ? sum / n : -1;
+        }
+
+        public static string MakeComplement(string dna)
+        {
+            var swDictionary = new Dictionary<char, char>() { { 'A', 'T' }, { 'T', 'A' }, { 'G', 'C' }, { 'C', 'G' } };
+            return new string(dna.Select(x => swDictionary[x]).ToArray());
+        }
+
+        public static string ToWeirdCase(string s)
+        {
+            return string.Join(" ", s.Split(' ').Select(j => new string(j.Select((x, i) => i % 2 == 0 ? char.ToUpper(x) : char.ToLower(x)).ToArray())).ToArray());
+        }
+
+        public static string SpinWords(string sentence) => string.Join(" ", sentence.Split(' ').Select(x => x.Length > 4 ? new string(x.Reverse().ToArray()) : x).ToArray());
+
+        public static string stat(string strg)
+        {
+            if (string.IsNullOrEmpty(strg)) return string.Empty;
+            var times = strg.Replace("|", ":").Split(',').Where(x => x.Length > 6).Select(x => DateTime.Parse(x).TimeOfDay).OrderBy(x => x).ToArray();
+            var rg = new DateTime() + (times[times.Length - 1] - times[0]);
+            var dd = 0d;
+            var count = times.Length;
+            for (var i = 0; i < count; ++i)
+            {
+                dd += times[i].Ticks / (double)count;
+            }
+            var av = new DateTime((long)dd);
+            TimeSpan men = new TimeSpan();
+            if (count % 2 != 0)
+            {
+                men = times[count / 2];
+            }
+            else
+            {
+                var mg = (times[count / 2] + times[count / 2 - 1]).TotalMilliseconds / 2;
+                men = new DateTime((long)(mg * 10000)).TimeOfDay;
+            }
+            return $"Range: {rg.TimeOfDay.ToString("hh\\|mm\\|ss")} Average: {av.TimeOfDay.ToString("hh\\|mm\\|ss")} Median: {men.ToString("hh\\|mm\\|ss")}";
+        }
+
+        public static int[] GetRow(int rowNumber)
+        {
+            if (rowNumber == 0) return new int[] { };
+            if (rowNumber == 1) return new int[] { 1 };
+            Func<List<int>, List<int>> pascalTriangle = null;
+            /*pascalTriangle = (List<int> arr) =>
+            {
+                if (arr.Count == rowNumber) return arr; 
+
+                for()
+            }*/
+
+
+            return new int[] { };
+        }
+
+
+        public static string ToJadenCase(string phrase)
+        {
+            return string.Join(" ", phrase.Split(' ').Select(x => char.ToUpper(x[0]) + x.Substring(1)).ToArray());
+        }
+
+        public static int MaxSequence(int[] arr)
+        {
+            if (arr.Length == 0) return 0;
+            var sum = 0;
+            var max = arr[0];
+            foreach( var num in arr)
+            {
+                sum += num;
+                max = Math.Max(max, sum);
+                sum = Math.Max(sum, 0);
+            }
+
+            return max;
+        }
+
+        public static int[] MaxSum(int[][] input)
+        {
+            return new int[0];
+        }
+
+        public static decimal Round(decimal number, int precision, int roundUpAt)
+        {
+            return 0m;
         }
     }
 }
