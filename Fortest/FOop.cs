@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -186,6 +187,62 @@ namespace Fortest
         public static object CentimetersToFeet(this object n)
         {
             return n;
+        }
+    }
+
+    class MYRainfall
+    {
+        public static double Mean(string town, string strng)
+        {
+            if (town == "") return -1;
+            if (strng.IndexOf(town, 0) == -1) return -1;
+            var start = strng.IndexOf(town, 0) + town.Length + 1;
+            var end = strng.IndexOf("\n", start);
+            double result = 0.0d;
+            try
+            {
+                result = Regex.Replace(strng.Substring(start, end == -1 ? strng.Length - start : end - start), "[a-z,]", "", RegexOptions.IgnoreCase).Replace(".", ",").Trim().Split(' ').Select(x => Convert.ToDouble(x)).Average();
+            }
+            catch
+            {
+                return -1;
+            }
+            return result;
+        }
+
+        public static double Variance(string town, string strng)
+        {
+            if (town == "") return -1;
+            if (strng.IndexOf(town, 0) == -1) return -1;
+            var start = strng.IndexOf(town, 0) + town.Length + 1;
+            var end = strng.IndexOf("\n", start);
+            List<double> collection = null;
+            try
+            {
+                collection = Regex.Replace(strng.Substring(start, end == -1 ? strng.Length - start : end - start), "[a-z,]", "", RegexOptions.IgnoreCase).Replace(".", ",").Trim().Split(' ').Select(x => Convert.ToDouble(x)).ToList();
+            }
+            catch
+            {
+                return -1;
+            }
+            var avg = collection.Average();
+            var result = collection.Select(x => Math.Pow(x - avg, 2)).Average();
+            return result;
+        }
+    }
+
+    class Rainfall
+    {
+        public static IEnumerable<double> gett(string t, string s) => s.Split('\n').First(x => x.Contains(t)).Split(',').Select(x => Convert.ToDouble(x));
+        public static double Mean(string town, string strng)
+        {
+            return strng.Contains(town + ":") ? gett(town, strng).Average() : -1;
+        }
+
+        public static double Variance(string town, string strng)
+        {
+            var avg = Mean(town, strng);
+            return strng.Contains(town + ":") ? gett(town, strng).Select(x => Math.Pow(x - avg, 2)).Average() : -1;
         }
     }
 }

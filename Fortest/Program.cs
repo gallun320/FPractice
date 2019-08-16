@@ -14,6 +14,27 @@ namespace Fortest
     public class Program
     {
         private static object lockObject = new Object();
+
+        private static readonly string data =
+     "Rome:Jan 81.2,Feb 63.2,Mar 70.3,Apr 55.7,May 53.0,Jun 36.4,Jul 17.5,Aug 27.5,Sep 60.9,Oct 117.7,Nov 111.0,Dec 97.9" +
+     "\n" +
+     "London:Jan 48.0,Feb 38.9,Mar 39.9,Apr 42.2,May 47.3,Jun 52.1,Jul 59.5,Aug 57.2,Sep 55.4,Oct 62.0,Nov 59.0,Dec 52.9" +
+     "\n" +
+     "Paris:Jan 182.3,Feb 120.6,Mar 158.1,Apr 204.9,May 323.1,Jun 300.5,Jul 236.8,Aug 192.9,Sep 66.3,Oct 63.3,Nov 83.2,Dec 154.7" +
+     "\n" +
+     "NY:Jan 108.7,Feb 101.8,Mar 131.9,Apr 93.5,May 98.8,Jun 93.6,Jul 102.2,Aug 131.8,Sep 92.0,Oct 82.3,Nov 107.8,Dec 94.2" +
+     "\n" +
+     "Vancouver:Jan 145.7,Feb 121.4,Mar 102.3,Apr 69.2,May 55.8,Jun 47.1,Jul 31.3,Aug 37.0,Sep 59.6,Oct 116.3,Nov 154.6,Dec 171.5" +
+     "\n" +
+     "Sydney:Jan 103.4,Feb 111.0,Mar 131.3,Apr 129.7,May 123.0,Jun 129.2,Jul 102.8,Aug 80.3,Sep 69.3,Oct 82.6,Nov 81.4,Dec 78.2" +
+     "\n" +
+     "Bangkok:Jan 10.6,Feb 28.2,Mar 30.7,Apr 71.8,May 189.4,Jun 151.7,Jul 158.2,Aug 187.0,Sep 319.9,Oct 230.8,Nov 57.3,Dec 9.4" +
+     "\n" +
+     "Tokyo:Jan 49.9,Feb 71.5,Mar 106.4,Apr 129.2,May 144.0,Jun 176.0,Jul 135.6,Aug 148.5,Sep 216.4,Oct 194.1,Nov 95.6,Dec 54.4" +
+     "\n" +
+     "Beijing:Jan 3.9,Feb 4.7,Mar 8.2,Apr 18.4,May 33.0,Jun 78.1,Jul 224.3,Aug 170.0,Sep 58.4,Oct 18.0,Nov 9.3,Dec 2.7" +
+     "\n" +
+     "Lima:Jan 1.2,Feb 0.9,Mar 0.7,Apr 0.4,May 0.6,Jun 1.8,Jul 4.4,Aug 3.1,Sep 3.3,Oct 1.7,Nov 0.5,Dec 0.7";
         static void Main(string[] args)
         {
             //Console.WriteLine(IsSquare(25));
@@ -99,7 +120,23 @@ namespace Fortest
             //Console.WriteLine(prc.process('C'));
             //Console.WriteLine(stat(""));
             //Console.WriteLine(MaxSequence(new int[] { -2, 1, -3, 4, -1, 2, 1, -5, 4 }));
-            Console.WriteLine(1.FeetToCentimeters());
+            //Console.WriteLine(1.FeetToCentimeters());
+            /*var arrRs = GetRow(3);
+            foreach(var el in arrRs)
+            {
+                Console.WriteLine(el);
+            }*/
+            //Console.WriteLine(Round(0.904m, 2, 4));
+            //Console.WriteLine(Rainfall.Mean("Lon", data));
+            //Console.WriteLine(Rainfall.Variance("London", data));
+            //Console.WriteLine(SortBits("000000100000011101010101000000101101000100000001"));
+            //Console.WriteLine(Calculate("10", "10"));
+            /*var arr = SortByBit(new int[] { 3, 8, 3, 6, 5, 7, 9, 1 });
+            foreach (var el in arr) Console.WriteLine(el);*/
+            var trTest = new FThreadFirst();
+            //trTest.GoThread();
+            trTest.TexterThread();
+
             Console.ReadKey();
             
         }
@@ -1180,7 +1217,7 @@ namespace Fortest
 
         public static string SpinWords(string sentence) => string.Join(" ", sentence.Split(' ').Select(x => x.Length > 4 ? new string(x.Reverse().ToArray()) : x).ToArray());
 
-        public static string stat(string strg)
+        public static string MYstat(string strg)
         {
             if (string.IsNullOrEmpty(strg)) return string.Empty;
             var times = strg.Replace("|", ":").Split(',').Where(x => x.Length > 6).Select(x => DateTime.Parse(x).TimeOfDay).OrderBy(x => x).ToArray();
@@ -1205,20 +1242,99 @@ namespace Fortest
             return $"Range: {rg.TimeOfDay.ToString("hh\\|mm\\|ss")} Average: {av.TimeOfDay.ToString("hh\\|mm\\|ss")} Median: {men.ToString("hh\\|mm\\|ss")}";
         }
 
-        public static int[] GetRow(int rowNumber)
+        public static string stat(string strg)
+        {
+            try
+            {
+                var times = strg.Replace("|", ":").Split(',').Select(x => DateTime.Parse(x).TimeOfDay).OrderBy(x => x);
+                return $"{Range(times)} {Average(times)} {Median(times)}";
+            }
+            catch
+            {
+                return "";
+            }
+            
+        }
+
+        public static string Range(IEnumerable<TimeSpan> races)
+        {
+            var range = races.Min() - races.Max();
+            return $"Range: {range:hh\\|mm\\|ss}";
+        }
+
+        public static string Average(IEnumerable<TimeSpan> races)
+        {
+            var avg = TimeSpan.FromSeconds(races.Average(tm => tm.TotalSeconds));
+            return $"Average: {avg:hh\\|mm\\|ss}";
+        }
+
+        public static string Median(IEnumerable<TimeSpan> races)
+        {
+            TimeSpan med;
+            var index = races.Count() / 2;
+            if (index % 2 == 0)
+            {
+                med = TimeSpan.FromSeconds((races.ElementAt(index - 1).TotalSeconds + races.ElementAt(index).TotalSeconds) / 2);
+            }
+            else
+            {
+                med = races.ElementAt(index);
+            }
+            return $"Median: {med:hh\\|mm\\|ss}";
+        }
+
+        public static int[] MYGetRow(int rowNumber)
         {
             if (rowNumber == 0) return new int[] { };
             if (rowNumber == 1) return new int[] { 1 };
+            if (rowNumber == 2) return new int[] { 1,1 };
             Func<List<int>, List<int>> pascalTriangle = null;
-            /*pascalTriangle = (List<int> arr) =>
+            pascalTriangle = (List<int> arr) =>
             {
-                if (arr.Count == rowNumber) return arr; 
+                if (arr.Count == rowNumber) return arr;
+                var lst = new List<int>();
 
-                for()
-            }*/
+                for (var i = 0; i < arr.Count + 1; ++i)
+                {
+                    if (i == 0 || i == arr.Count)
+                    {
+                        lst.Add(1);
+                    }
+                    else
+                    {
+                        lst.Add(arr[i] + arr[i - 1]);
+                    }
+                }
+                return pascalTriangle(lst);
+            };
+            return pascalTriangle(new List<int>() { 1, 1 }).ToArray();
+        }
 
-
-            return new int[] { };
+        public static int[] GetRow(int rowNumber)
+        {
+            if (rowNumber < 1 || rowNumber > 10) return new int[] { };
+            if (rowNumber == 1) return new int[] { 1 };
+            if (rowNumber == 2) return new int[] { 1, 1 };
+            var farr = new int[3];
+            var sarr = new int[] { 1, 1 };
+            for(var j = 1; j < rowNumber; ++j)
+            {
+                farr = new int[sarr.Length + 1];
+                for (var i = 0; i < sarr.Length + 1; ++i)
+                {
+                    if (i == 0 || i == sarr.Length)
+                    {
+                        farr[i] = 1;
+                    }
+                    else
+                    {
+                        farr[i] = (sarr[i] + sarr[i - 1]);
+                    }
+                }
+                sarr = farr;
+            }
+            
+            return farr;
         }
 
 
@@ -1247,9 +1363,63 @@ namespace Fortest
             return new int[0];
         }
 
+        public static decimal MYRound(decimal number, int precision, int roundUpAt)
+        {
+            if (number == 0) return number;
+            if (Math.Ceiling(number) - number == 0 && roundUpAt == 0) return ++number;
+            var fr = number.ToString().Split(',');
+            if (fr.Length < 2) return number;
+            var secPart = fr[1];
+            var full = fr[0];
+            if (Convert.ToDecimal(secPart[precision] - 48) > roundUpAt - 1)
+            {
+                if (precision - 2 < 0) return Math.Ceiling(number);
+                secPart = secPart.Substring(0, precision - 1) + 1;
+            }
+            return Convert.ToDecimal(string.Format("{0},{1}", full, secPart.Substring(0, precision)));
+        }
+
         public static decimal Round(decimal number, int precision, int roundUpAt)
         {
-            return 0m;
+            if (number == 0) return number;
+
+            var roundAt =  10 - roundUpAt;
+            var factor = 1;
+            for (var i = 1; i <= precision; ++i) factor *= 10;
+
+            var rule = (decimal)roundAt / factor / 10;
+            var newNumber = (number + rule) * factor;
+            newNumber = Math.Truncate(newNumber);
+
+            return newNumber / factor;
+        }
+
+        public static string SortBits(string bits)
+        {
+            if (bits == "") return bits;
+            var chunks = bits.Length / 8;
+            var sb = new List<int>();
+            for (var i = 0; i < chunks; ++i)
+            {
+                sb.Add(Convert.ToInt32(bits.Substring(i * 8, 8), 2));
+            }
+            return string.Concat(sb.OrderBy(x => x).ToArray());
+        }
+
+        public static int MYCalculate(string num1, string num2)
+        {
+            Func<string, int> toDec = (string a) => a.Select((x, i) => (x - 48) * (int)Math.Pow(2, a.Length - i - 1)).Sum();
+            return toDec(num1) + toDec(num2);
+        }
+
+        public static int Calculate(string num1, string num2)
+        {
+            return Convert.ToInt32(num1, 2) + Convert.ToInt32(num2, 2);
+        }
+
+        public static int[] SortByBit(int[] array)
+        {
+            return array.OrderBy(x => Convert.ToString(x, 2).Select(i => i - 48).Sum()).ThenBy(x => x).ToArray();
         }
     }
 }

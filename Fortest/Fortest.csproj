@@ -47,6 +47,7 @@
     <Compile Include="FAbstract.cs" />
     <Compile Include="FDerived.cs" />
     <Compile Include="FOop.cs" />
+    <Compile Include="FThreadFirst.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
