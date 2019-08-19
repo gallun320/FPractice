@@ -1421,5 +1421,33 @@ namespace Fortest
         {
             return array.OrderBy(x => Convert.ToString(x, 2).Select(i => i - 48).Sum()).ThenBy(x => x).ToArray();
         }
+
+        public static bool ValidParentheses(string input)
+        {
+            var brList = new List<char>();
+
+            foreach(var ch in input)
+            {
+                if(ch == '(')
+                {
+                    brList.Add(ch);
+                }
+                else if (ch == ')')
+                {
+                    if (brList.Count == 0) return false;
+
+                    if (brList[brList.Count - 1] != '(') return false;
+
+                    brList.RemoveAt(brList.Count - 1);
+                }
+            }
+            return brList.Count > 0 ? false : true;
+        }
+
+        public double[] Tribonacci(double[] signature, int n)
+        {
+            // hackonacci me
+            return new double[0];
+        }
     }
 }
